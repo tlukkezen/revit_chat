@@ -27,10 +27,12 @@ class EventHandler(AssistantEventHandler):
                     if output.type == "logs":
                         print(f"\n{output.logs}", flush=True)
     
+    
+    # def on_message_done(self, message):    
     # Then, we use the `stream` SDK helper 
     # with the `EventHandler` class to create the Run 
     # and stream the response.
-
+        # message_content = message.content[0].image_file
   
 # assistant = client.beta.assistants.create(
 #   name="Math Tutor",
@@ -64,6 +66,9 @@ def uploadfile2assitant(assistant):
       tool_resources={"file_search": {"vector_store_ids": [vector_store.id]}},
     )
 
+# def uploadfile2thread(thread):
+#     thread
+
 
 
 if __name__=="__main__":
@@ -72,18 +77,23 @@ if __name__=="__main__":
     client = OpenAI()
     
     assistant = client.beta.assistants.retrieve(assistant_id)
+
     thread = client.beta.threads.create()
+
+    message_file = client.files.create(file=open(r"C:\Users\MarcRotsaert\temp\temp.jpg", "rb"),
+                                       purpose="assistants")
 
     message = client.beta.threads.messages.create(
     thread_id=thread.id,
     role="user",
-    content="I need information from the file I provided. Can you give help to me all speckle types in the file? "
+    content="Show me the picture upside down?",
+    attachments=[{ "file_id": message_file.id, "tools": [{"type": "code_interpreter"}]}],
     )    
     
     with client.beta.threads.runs.stream(
     thread_id=thread.id,
     assistant_id=assistant.id,
-    instructions="Please address the user as Jane Doe. The user has a premium account.",
+    instructions="Please address the user as Jane Doe.",
     event_handler=EventHandler(),
     ) as stream:
       stream.until_done()
