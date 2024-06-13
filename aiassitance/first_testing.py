@@ -4,6 +4,7 @@ from openai import AssistantEventHandler
 
 
 
+# From Quick start, override methods event handler
 class EventHandler(AssistantEventHandler):    
     @override
     def on_text_created(self, text) -> None:
@@ -38,7 +39,8 @@ class EventHandler(AssistantEventHandler):
 #   model="gpt-4o",
 # )
 
-def upload_file(assistant):
+# As an example
+def uploadfile2assitant(assistant):
     client.beta.assistants.update(assistant_id=assistantid)
 
     # Create a vector store caled "Financial Statements"
@@ -85,7 +87,3 @@ if __name__=="__main__":
     event_handler=EventHandler(),
     ) as stream:
       stream.until_done()
-    
-  
-  
-  
