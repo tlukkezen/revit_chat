@@ -28,11 +28,14 @@ class EventHandler(AssistantEventHandler):
                         print(f"\n{output.logs}", flush=True)
     
     
-    # def on_message_done(self, message):    
-    # Then, we use the `stream` SDK helper 
-    # with the `EventHandler` class to create the Run 
-    # and stream the response.
-        # message_content = message.content[0].image_file
+    # def on_message_done(self,):
+    #     image_data = client.files.content(".....")
+    #     image_data_bytes = image_data.read()
+
+    #     with open("C:/my-image.png", "wb") as file:
+    #         file.write(image_data_bytes)
+                # print(message.content[0])
+        
   
 # assistant = client.beta.assistants.create(
 #   name="Math Tutor",
@@ -68,28 +71,34 @@ def uploadfile2assitant(assistant):
 
 # def uploadfile2thread(thread):
 #     thread
-
-
+# def retrieve_thread(thread_id)
 
 if __name__=="__main__":
     assistant_id = "asst_NK4twNo6kRlGH37C6HbNsMYb"
-    
     client = OpenAI()
     
     assistant = client.beta.assistants.retrieve(assistant_id)
-
     thread = client.beta.threads.create()
+    # print(thread.id)
+    # thread_id = "thread_Z0mTka8AQSXUfpeKPSnWPdSG"
+    thread_id = thread.id
+    thread = client.beta.threads.retrieve(thread_id)
 
     message_file = client.files.create(file=open(r"C:\Users\MarcRotsaert\temp\temp.jpg", "rb"),
                                        purpose="assistants")
-
     message = client.beta.threads.messages.create(
     thread_id=thread.id,
     role="user",
-    content="Show me the picture upside down?",
+    content="Show me the picture upside down and save it to C:/?",
     attachments=[{ "file_id": message_file.id, "tools": [{"type": "code_interpreter"}]}],
     )    
-    
+    # run = client.beta.threads.runs.create(
+    #         thread_id=thread.id,
+    #         assistant_id=assistant.id,
+    #         instructions="Please address the user as Jane Doe.",
+    #         # event_handler=EventHandler(),
+    #         )     
+        
     with client.beta.threads.runs.stream(
     thread_id=thread.id,
     assistant_id=assistant.id,
@@ -97,3 +106,33 @@ if __name__=="__main__":
     event_handler=EventHandler(),
     ) as stream:
       stream.until_done()
+    
+
+    messages = client.beta.threads.messages.list(thread_id)
+    fid = messages.data[0].content[0].text.annotations[0].file_path.file_id
+    
+    image_data = client.files.content(fid)
+    image_data_bytes = image_data.read()
+    with open("./my-image.png", "wb") as file:
+        file.write(image_data_bytes)
+    
+    # Use the create and poll SDK helper to create a run and poll the status of
+# the run until it's in a terminal state.
+
+
+    # run = client.beta.threads.runs.create_and_poll(
+    #     thread_id=thread.id, assistant_id=assistant.id
+    # )
+  
+    # messages = list(client.beta.threads.messages.list(thread_id=thread.id, run_id=run.id))
+
+    # message_content = messages[0].content[0].text
+    # annotations = message_content.annotations
+    # citations = []
+    # for index, annotation in enumerate(annotations):
+    #     message_content.value = message_content.value.replace(annotation.text, f"[{index}]")
+    #     if file_citation := getattr(annotation, "file_citation", None):
+    #         cited_file = client.files.retrieve(file_citation.file_id)
+    #         citations.append(f"[{index}] {cited_file.filename}")
+    
+    print()
